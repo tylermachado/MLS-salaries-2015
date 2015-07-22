@@ -21,6 +21,10 @@ body {
   display: none;
 }
 
+.x.axis text {
+  cursor: default;
+}
+
 .tooltip{
   text-anchor: end;
   font-family: sans-serif;
@@ -35,7 +39,7 @@ body {
 var csv;
 
 var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
+    width = window.innerWidth - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
@@ -44,8 +48,7 @@ var x = d3.scale.ordinal()
 var y = d3.scale.linear()
     .rangeRound([height, 0]);
 
-var color = d3.scale.ordinal()
-    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+var color = d3.scale.category20c();
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -98,7 +101,7 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
   data.forEach(function(d) {
     var y0 = 0;
     var array2filter = $.grep(array2, function(e){ return e.club == d.club; });
-    d.ages = color.domain().map(function(name) { 
+    d.chartsalaries = color.domain().map(function(name) { 
       var salary = d[name];
       return {
         name: name, 
@@ -109,7 +112,7 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
         y1: y0 += +d[name]
       }; 
     });
-    d.total = d.ages[d.ages.length - 1].y1;
+    d.total = d.chartsalaries[d.chartsalaries.length - 1].y1;
   });
 
   data.sort(function(a, b) { return b.total - a.total; });
@@ -138,7 +141,7 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
       .attr("transform", function(d) { return "translate(0,0)"; });
 
   club.selectAll("rect")
-      .data(function(d) { return d.ages; })
+      .data(function(d) { return d.chartsalaries; })
     .enter().append("rect")
       .attr("width", x.rangeBand())
       .attr("x", function(d) { return x(d.club); })
@@ -156,16 +159,29 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
       d3.select(this).attr("stroke","blue").attr("stroke-width",0.8);             
       
       svg.append("text")
-        .attr("x",width)
+        .attr("x",width  - margin.right)
         .attr("y",0)
         .attr("class","tooltip")
-        .text(d.playername + " - " + (+(d.salary)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
-                          
+        .text(d.playername + " - $" + (+(d.salary)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));   
     })
     .on("mouseout",function(){      
       svg.select(".tooltip").remove();
       d3.select(this).attr("stroke","").attr("stroke-width",0);             
-    })
+    });
+
+    d3.selectAll(".x text")
+      .data(data)    
+      .on("mouseover", function(d){   
+        svg.append("text")
+          .attr("x",width  - margin.right)
+          .attr("y",0)
+          .attr("class","tooltip")
+          .text(d.club + " - $" + (+(d.total)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));   
+      })
+      .on("mouseout",function(){      
+        svg.select(".tooltip").remove();
+        d3.select(this).attr("stroke","").attr("stroke-width",0);             
+      })
 });
 
 </script>
