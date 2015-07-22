@@ -22,11 +22,10 @@ body {
 }
 
 .tooltip{
-  text-anchor: middle;
+  text-anchor: end;
   font-family: sans-serif;
-  font-size: 12px;
+  font-size: 22px;
   font-weight: bold;
-  fill:green; 
 }
 </style>
 <body>
@@ -99,7 +98,17 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
   data.forEach(function(d) {
     var y0 = 0;
     var array2filter = $.grep(array2, function(e){ return e.club == d.club; });
-    d.ages = color.domain().map(function(name) { return {name: name, playername: array2filter[0][name], y0: y0, y1: y0 += +d[name]}; });
+    d.ages = color.domain().map(function(name) { 
+      var salary = d[name];
+      return {
+        name: name, 
+        club: array2filter[0]["club"], 
+        playername: array2filter[0][name], 
+        salary: d[name], 
+        y0: y0, 
+        y1: y0 += +d[name]
+      }; 
+    });
     d.total = d.ages[d.ages.length - 1].y1;
   });
 
@@ -126,57 +135,37 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
       .data(data)
     .enter().append("g")
       .attr("class", "g")
-      .attr("transform", function(d) { return "translate(" + x(d.club) + ",0)"; });
+      .attr("transform", function(d) { return "translate(0,0)"; });
 
   club.selectAll("rect")
       .data(function(d) { return d.ages; })
     .enter().append("rect")
       .attr("width", x.rangeBand())
+      .attr("x", function(d) { return x(d.club); })
       .attr("y", function(d) { return y(d.y1); })
       .attr("height", function(d) { return y(d.y0) - y(d.y1); })
       .attr("playername", function(d) { return d.playername; })
       .style("fill", function(d) { return color(d.name); });
 
-
   club.selectAll("rect")
     .on("mouseover", function(d){   
       var xPos = parseFloat(d3.select(this).attr("x"));
       var yPos = parseFloat(d3.select(this).attr("y"));
-      var height = parseFloat(d3.select(this).attr("height"))
+      var newheight = parseFloat(d3.select(this).attr("height"))
               
       d3.select(this).attr("stroke","blue").attr("stroke-width",0.8);             
       
       svg.append("text")
-        .attr("x",xPos)
-        .attr("y",yPos +height/2)
+        .attr("x",width)
+        .attr("y",0)
         .attr("class","tooltip")
-        .text(d.playername);
+        .text(d.playername + " - " + (+(d.salary)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
                           
     })
     .on("mouseout",function(){      
       svg.select(".tooltip").remove();
       d3.select(this).attr("stroke","").attr("stroke-width",0);             
     })
-
-  // var legend = svg.selectAll(".legend")
-  //     .data(color.domain().slice().reverse())
-  //   .enter().append("g")
-  //     .attr("class", "legend")
-  //     .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-
-  // legend.append("rect")
-  //     .attr("x", width - 18)
-  //     .attr("width", 18)
-  //     .attr("height", 18)
-  //     .style("fill", color);
-
-  // legend.append("text")
-  //     .attr("x", width - 24)
-  //     .attr("y", 9)
-  //     .attr("dy", ".35em")
-  //     .style("text-anchor", "end")
-  //     .text(function(d) { return d; });
-
 });
 
 </script>
