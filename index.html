@@ -61,25 +61,25 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
 
   csv = data;
 
-var clubs = ["CHI", "CLB", "COL", "DAL", "DC", "HOU", "KC", "LA", "MTL", "NE", "NY", "NYCFC", "ORL", "PHI", "POR", "RSL", "SEA", "SJ", "TOR", "VAN"];
+  var clubs = ["CHI", "CLB", "COL", "DAL", "DC", "HOU", "KC", "LA", "MTL", "NE", "NY", "NYCFC", "ORL", "PHI", "POR", "RSL", "SEA", "SJ", "TOR", "VAN"];
 
-var newarray = [];
+  var newarray = [];
 
-$( clubs ).each(function( index, value ) {
-  newarray[index] = new Object();
-  newarray[index].club = value;
-});
+  $( clubs ).each(function( index, value ) {
+    newarray[index] = new Object();
+    newarray[index].club = value;
+  });
 
-$( csv ).each(function( index, value ) {
-   var thisclub = jQuery.grep(newarray, function( n ) { return (n.club == value.Club); });
-   if (thisclub.length != 0) {
-     thisclub[0]["player " + (Object.keys(thisclub[0]).length)] = value["2015 Base Salary"];
-   }
-});
+  $( csv ).each(function( index, value ) {
+     var thisclub = jQuery.grep(newarray, function( n ) { return (n.club == value.Club); });
+     if (thisclub.length != 0) {
+       thisclub[0]["player " + (Object.keys(thisclub[0]).length)] = value["2015 Base Salary"];
+     }
+  });
 
-data = newarray;
+  data = newarray;
 
-console.log(data);
+  console.log(data);
 
   color.domain(d3.keys(data[0]).filter(function(key) { return key !== "club"; }));
 
