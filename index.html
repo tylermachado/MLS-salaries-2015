@@ -21,6 +21,13 @@ body {
   display: none;
 }
 
+.tooltip{
+  text-anchor: middle;
+  font-family: sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  fill:green; 
+}
 </style>
 <body>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -63,29 +70,36 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
 
   var clubs = ["CHI", "CLB", "COL", "DAL", "DC", "HOU", "KC", "LA", "MTL", "NE", "NY", "NYCFC", "ORL", "PHI", "POR", "RSL", "SEA", "SJ", "TOR", "VAN"];
 
-  var newarray = [];
+  var array1 = [];
+  var array2 = [];
 
   $( clubs ).each(function( index, value ) {
-    newarray[index] = new Object();
-    newarray[index].club = value;
+    array1[index] = new Object();
+    array1[index].club = value;
+    array2[index] = new Object();
+    array2[index].club = value;
   });
 
   $( csv ).each(function( index, value ) {
-     var thisclub = jQuery.grep(newarray, function( n ) { return (n.club == value.Club); });
-     if (thisclub.length != 0) {
-       thisclub[0]["player " + (Object.keys(thisclub[0]).length)] = value["2015 Base Salary"];
+     var salaries = jQuery.grep(array1, function( n ) { return (n.club == value.Club); });
+     var names = jQuery.grep(array2, function( n ) { return (n.club == value.Club); });;
+     if (salaries.length != 0) {
+       salaries[0]["player " + (Object.keys(salaries[0]).length)] = value["2015 Base Salary"];
+       names[0]["player " + (Object.keys(names[0]).length)] = value["Last Name"];
      }
   });
 
-  data = newarray;
+  data = array1;
 
   console.log(data);
+  console.log(array2);
 
   color.domain(d3.keys(data[0]).filter(function(key) { return key !== "club"; }));
 
   data.forEach(function(d) {
     var y0 = 0;
-    d.ages = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
+    var array2filter = $.grep(array2, function(e){ return e.club == d.club; });
+    d.ages = color.domain().map(function(name) { return {name: name, playername: array2filter[0][name], y0: y0, y1: y0 += +d[name]}; });
     d.total = d.ages[d.ages.length - 1].y1;
   });
 
@@ -120,7 +134,29 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.y1); })
       .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+      .attr("playername", function(d) { return d.playername; })
       .style("fill", function(d) { return color(d.name); });
+
+
+  club.selectAll("rect")
+    .on("mouseover", function(d){   
+      var xPos = parseFloat(d3.select(this).attr("x"));
+      var yPos = parseFloat(d3.select(this).attr("y"));
+      var height = parseFloat(d3.select(this).attr("height"))
+              
+      d3.select(this).attr("stroke","blue").attr("stroke-width",0.8);             
+      
+      svg.append("text")
+        .attr("x",xPos)
+        .attr("y",yPos +height/2)
+        .attr("class","tooltip")
+        .text(d.playername);
+                          
+    })
+    .on("mouseout",function(){      
+      svg.select(".tooltip").remove();
+      d3.select(this).attr("stroke","").attr("stroke-width",0);             
+    })
 
   // var legend = svg.selectAll(".legend")
   //     .data(color.domain().slice().reverse())
