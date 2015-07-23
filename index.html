@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="initial-scale=1">
+<title>2015 MLS Salaries</title>
 <style>
 
 body {
-  font: 10px sans-serif;
+  font: 14px sans-serif;
 }
 
 .axis path,
@@ -34,165 +35,178 @@ body {
 }
 </style>
 <body>
-<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-<script>
-var csv;
 
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = window.innerWidth - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    <h1>2015 MLS Salaries</h1>
 
-var x = d3.scale.ordinal()
-    .rangeRoundBands([0, width], .1);
+    <div id="d3container"></div>
 
-var y = d3.scale.linear()
-    .rangeRound([height, 0]);
+    <p>The above chart breaks down each Major League Soccer team's 2015 payroll by player. Roll over any of the rectangles to see the player and his 2015 salary, as well as a line indicating where that salary bill lands when compared across the league (you'll not that four players make more by themselves than 15 entire teams do).</p>
 
-var color = d3.scale.category20c();
+    <p>Made with D3.js. <a href="https://github.com/tylermachado/MLS-salaries-2015">The code for this project is available on Github</a>, and includes a cleaned-up CSV of the salary data. Salary data comes via the <a href="http://www.mlsplayers.org/">Major League Soccer Players Union</a>.</p>
 
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
 
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left")
-    .tickFormat(d3.format(".2s"));
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script>
+    var csv;
 
-d3.csv("mls-salaries-2015.csv", function(error, data) {
-  if (error) throw error;
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = window.innerWidth - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
 
-  csv = data;
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
 
-  var clubs = ["CHI", "CLB", "COL", "DAL", "DC", "HOU", "KC", "LA", "MTL", "NE", "NY", "NYCFC", "ORL", "PHI", "POR", "RSL", "SEA", "SJ", "TOR", "VAN"];
+    var y = d3.scale.linear()
+        .rangeRound([height, 0]);
 
-  var array1 = [];
-  var array2 = [];
+    var color = d3.scale.category20c();
 
-  $( clubs ).each(function( index, value ) {
-    array1[index] = new Object();
-    array1[index].club = value;
-    array2[index] = new Object();
-    array2[index].club = value;
-  });
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
 
-  $( csv ).each(function( index, value ) {
-     var salaries = jQuery.grep(array1, function( n ) { return (n.club == value.Club); });
-     var names = jQuery.grep(array2, function( n ) { return (n.club == value.Club); });;
-     if (salaries.length != 0) {
-       salaries[0]["player " + (Object.keys(salaries[0]).length)] = value["2015 Base Salary"];
-       names[0]["player " + (Object.keys(names[0]).length)] = value["Last Name"];
-     }
-  });
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .tickFormat(d3.format(".2s"));
 
-  data = array1;
+    var svg = d3.select("#d3container").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  console.log(data);
-  console.log(array2);
+    d3.csv("mls-salaries-2015.csv", function(error, data) {
+      if (error) throw error;
 
-  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "club"; }));
+      csv = data;
 
-  data.forEach(function(d) {
-    var y0 = 0;
-    var array2filter = $.grep(array2, function(e){ return e.club == d.club; });
-    d.chartsalaries = color.domain().map(function(name) { 
-      var salary = d[name];
-      return {
-        name: name, 
-        club: array2filter[0]["club"], 
-        playername: array2filter[0][name], 
-        salary: d[name], 
-        y0: y0, 
-        y1: y0 += +d[name]
-      }; 
+      var clubs = ["CHI", "CLB", "COL", "DAL", "DC", "HOU", "KC", "LA", "MTL", "NE", "NY", "NYCFC", "ORL", "PHI", "POR", "RSL", "SEA", "SJ", "TOR", "VAN"];
+
+      var array1 = [];
+      var array2 = [];
+
+      $( clubs ).each(function( index, value ) {
+        array1[index] = new Object();
+        array1[index].club = value;
+        array2[index] = new Object();
+        array2[index].club = value;
+      });
+
+      $( csv ).each(function( index, value ) {
+         var salaries = jQuery.grep(array1, function( n ) { return (n.club == value.Club); });
+         var names = jQuery.grep(array2, function( n ) { return (n.club == value.Club); });;
+         if (salaries.length != 0) {
+           salaries[0]["player " + (Object.keys(salaries[0]).length)] = value["2015 Base Salary"];
+           names[0]["player " + (Object.keys(names[0]).length)] = value["Last Name"];
+         }
+      });
+
+      data = array1;
+
+      console.log(data);
+      console.log(array2);
+
+      color.domain(d3.keys(data[0]).filter(function(key) { return key !== "club"; }));
+
+      data.forEach(function(d) {
+        var y0 = 0;
+        var array2filter = $.grep(array2, function(e){ return e.club == d.club; });
+        d.chartsalaries = color.domain().map(function(name) { 
+          var salary = d[name];
+          return {
+            name: name, 
+            club: array2filter[0]["club"], 
+            playername: array2filter[0][name], 
+            salary: d[name], 
+            y0: y0, 
+            y1: y0 += +d[name]
+          }; 
+        });
+        d.total = d.chartsalaries[d.chartsalaries.length - 1].y1;
+      });
+
+      data.sort(function(a, b) { return b.total - a.total; });
+
+      x.domain(data.map(function(d) { return d.club; }));
+      y.domain([0, d3.max(data, function(d) { return d.total; })]);
+
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end");
+
+      var club = svg.selectAll(".club")
+          .data(data)
+        .enter().append("g")
+          .attr("class", "g")
+          .attr("transform", function(d) { return "translate(0,0)"; });
+
+      club.selectAll("rect")
+          .data(function(d) { return d.chartsalaries; })
+        .enter().append("rect")
+          .attr("width", x.rangeBand())
+          .attr("x", function(d) { return x(d.club); })
+          .attr("y", function(d) { return y(d.y1); })
+          .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+          .attr("playername", function(d) { return d.playername; })
+          .style("fill", function(d) { return color(d.name); });
+
+      club.selectAll("rect")
+        .on("mouseover", function(d){   
+          var xPos = parseFloat(d3.select(this).attr("x"));
+          var yPos = parseFloat(d3.select(this).attr("y"));
+          var newheight = parseFloat(d3.select(this).attr("height"))
+                  
+          d3.select(this).attr("stroke","blue").attr("stroke-width",0.8);             
+          
+          svg.append("text")
+            .attr("x",width  - margin.right)
+            .attr("y",0)
+            .attr("class","tooltip")
+            .text(d.playername + " - $" + (+(d.salary)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));   
+
+          svg.append("line")
+              .attr("class","comparisonline")
+             .attr("x1", 0)
+             .attr("y1", y(+(d.salary)))
+             .attr("x2", width  - margin.right)
+             .attr("y2", y(+(d.salary)))
+             .attr("stroke-width", 1)
+             .attr("stroke", "black");
+        })
+        .on("mouseout",function(){      
+          svg.select(".tooltip").remove();
+          svg.selectAll(".comparisonline").remove();
+          d3.select(this).attr("stroke","").attr("stroke-width",0);             
+        });
+
+        d3.selectAll(".x text")
+          .data(data)    
+          .on("mouseover", function(d){   
+            svg.append("text")
+              .attr("x",width  - margin.right)
+              .attr("y",0)
+              .attr("class","tooltip")
+              .text(d.club + " - $" + (+(d.total)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));   
+          })
+          .on("mouseout",function(){      
+            svg.select(".tooltip").remove();
+            d3.select(this).attr("stroke","").attr("stroke-width",0);             
+          })
     });
-    d.total = d.chartsalaries[d.chartsalaries.length - 1].y1;
-  });
 
-  data.sort(function(a, b) { return b.total - a.total; });
-
-  x.domain(data.map(function(d) { return d.club; }));
-  y.domain([0, d3.max(data, function(d) { return d.total; })]);
-
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
-
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end");
-
-  var club = svg.selectAll(".club")
-      .data(data)
-    .enter().append("g")
-      .attr("class", "g")
-      .attr("transform", function(d) { return "translate(0,0)"; });
-
-  club.selectAll("rect")
-      .data(function(d) { return d.chartsalaries; })
-    .enter().append("rect")
-      .attr("width", x.rangeBand())
-      .attr("x", function(d) { return x(d.club); })
-      .attr("y", function(d) { return y(d.y1); })
-      .attr("height", function(d) { return y(d.y0) - y(d.y1); })
-      .attr("playername", function(d) { return d.playername; })
-      .style("fill", function(d) { return color(d.name); });
-
-  club.selectAll("rect")
-    .on("mouseover", function(d){   
-      var xPos = parseFloat(d3.select(this).attr("x"));
-      var yPos = parseFloat(d3.select(this).attr("y"));
-      var newheight = parseFloat(d3.select(this).attr("height"))
-              
-      d3.select(this).attr("stroke","blue").attr("stroke-width",0.8);             
-      
-      svg.append("text")
-        .attr("x",width  - margin.right)
-        .attr("y",0)
-        .attr("class","tooltip")
-        .text(d.playername + " - $" + (+(d.salary)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));   
-
-      svg.append("line")
-          .attr("class","comparisonline")
-         .attr("x1", 0)
-         .attr("y1", y(+(d.salary)))
-         .attr("x2", width  - margin.right)
-         .attr("y2", y(+(d.salary)))
-         .attr("stroke-width", 1)
-         .attr("stroke", "black");
-    })
-    .on("mouseout",function(){      
-      svg.select(".tooltip").remove();
-      svg.selectAll(".comparisonline").remove();
-      d3.select(this).attr("stroke","").attr("stroke-width",0);             
-    });
-
-    d3.selectAll(".x text")
-      .data(data)    
-      .on("mouseover", function(d){   
-        svg.append("text")
-          .attr("x",width  - margin.right)
-          .attr("y",0)
-          .attr("class","tooltip")
-          .text(d.club + " - $" + (+(d.total)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));   
-      })
-      .on("mouseout",function(){      
-        svg.select(".tooltip").remove();
-        d3.select(this).attr("stroke","").attr("stroke-width",0);             
-      })
-});
-
-</script>
+    </script>
+  </body>
+  </html>
