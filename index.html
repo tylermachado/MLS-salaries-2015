@@ -164,9 +164,19 @@ d3.csv("mls-salaries-2015.csv", function(error, data) {
         .attr("y",0)
         .attr("class","tooltip")
         .text(d.playername + " - $" + (+(d.salary)).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));   
+
+      svg.append("line")
+          .attr("class","comparisonline")
+         .attr("x1", 0)
+         .attr("y1", y(+(d.salary)))
+         .attr("x2", width  - margin.right)
+         .attr("y2", y(+(d.salary)))
+         .attr("stroke-width", 1)
+         .attr("stroke", "black");
     })
     .on("mouseout",function(){      
       svg.select(".tooltip").remove();
+      svg.selectAll(".comparisonline").remove();
       d3.select(this).attr("stroke","").attr("stroke-width",0);             
     });
 
