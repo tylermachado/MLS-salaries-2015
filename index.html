@@ -161,10 +161,9 @@ body {
           .attr("y", function(d) { return y(d.y1); })
           .attr("height", function(d) { return y(d.y0) - y(d.y1); })
           .attr("playername", function(d) { return d.playername; })
-          .style("fill", function(d) { return color(d.name); });
-
-      club.selectAll("rect")
+          .style("fill", function(d) { return color(d.name); })
         .on("mouseover", function(d){   
+          console.log(d);
           var xPos = parseFloat(d3.select(this).attr("x"));
           var yPos = parseFloat(d3.select(this).attr("y"));
           var newheight = parseFloat(d3.select(this).attr("height"))
